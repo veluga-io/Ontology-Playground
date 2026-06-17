@@ -86,7 +86,7 @@ Recommendation Engine:
     3. Recommend top 3 actions with ROI:
        - Action A: Activate ChipX Europe (save 2 days, cost +$2M)
        - Action B: Increase safety stock (cost $500K, cover 2 weeks)
-       - Action C: Substitute component (cost $0, lead time unknown)
+       - Action C: Redesign component (lead time unknown)
 ```
 
 ### Phase 5: Execute (minute 25)

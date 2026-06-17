@@ -61,7 +61,7 @@ DisruptionEvent "Taiwan Power Outage"
 RiskAssessment "Gaming Laptop - Impact Analysis"
   recommends→ MitigationAction "Activate Alt Supplier X"
            → MitigationAction "Increase Safety Stock"
-           → MitigationAction "Substitute Component"
+           → MitigationAction "Redesign Component"
 ```
 
 - **Why it matters**: Each impact analysis produces a prioritized action list
