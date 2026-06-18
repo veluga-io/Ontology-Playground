@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { ArrowLeft, BookOpen, ChevronRight, Sun, Moon, FlaskConical, GraduationCap, Play, X } from 'lucide-react';
 import { AppFooter } from './AppFooter';
-import { useAppStore } from '../store/appStore';
+import { useAppStore, themeClass } from '../store/appStore';
 import { navigate } from '../lib/router';
 import type { Route } from '../lib/router';
 import type { LearnManifest, LearnCourse, LearnArticle } from '../types/learn';
@@ -13,7 +13,7 @@ interface LearnPageProps {
 }
 
 export function LearnPage({ route }: LearnPageProps) {
-  const { darkMode, toggleDarkMode } = useAppStore();
+  const { darkMode, toggleDarkMode, theme } = useAppStore();
   const [manifest, setManifest] = useState<LearnManifest | null>(null);
   const [error, setError] = useState<string | null>(null);
   const pageRef = useRef<HTMLDivElement>(null);
@@ -35,7 +35,7 @@ export function LearnPage({ route }: LearnPageProps) {
 
   if (error) {
     return (
-      <div className={`learn-page ${darkMode ? '' : 'light-theme'}`}>
+      <div className={`learn-page ${themeClass(theme)}`}>
         <div className="learn-error">Failed to load learning content: {error}</div>
       </div>
     );
@@ -43,7 +43,7 @@ export function LearnPage({ route }: LearnPageProps) {
 
   if (!manifest) {
     return (
-      <div className={`learn-page ${darkMode ? '' : 'light-theme'}`}>
+      <div className={`learn-page ${themeClass(theme)}`}>
         <div className="learn-loading">Loading…</div>
       </div>
     );
@@ -72,7 +72,7 @@ export function LearnPage({ route }: LearnPageProps) {
   }
 
   return (
-    <div ref={pageRef} className={`learn-page ${darkMode ? '' : 'light-theme'}`}>
+    <div ref={pageRef} className={`learn-page ${themeClass(theme)}`}>
       <header className="learn-header">
         <button
           className="learn-back-btn"

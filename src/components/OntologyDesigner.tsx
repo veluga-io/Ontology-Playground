@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useDesignerStore } from '../store/designerStore';
-import { useAppStore } from '../store/appStore';
+import { useAppStore, themeClass } from '../store/appStore';
 import { navigate } from '../lib/router';
 import { EntityForm, RelationshipForm, DesignerPreview, DesignerToolbar, DesignerValidation, TemplatePicker } from './designer';
 import type { Catalogue } from '../types/catalogue';
@@ -13,7 +13,7 @@ interface OntologyDesignerProps {
 
 export function OntologyDesigner({ route }: OntologyDesignerProps) {
   const { ontology, setOntologyName, setOntologyDescription, loadDraft, undo, redo } = useDesignerStore();
-  const darkMode = useAppStore((s) => s.darkMode);
+  const theme = useAppStore((s) => s.theme);
   const isEmpty = ontology.entityTypes.length === 0 && ontology.relationships.length === 0;
 
   // Keyboard shortcuts: Cmd/Ctrl+Z → undo, Cmd/Ctrl+Shift+Z → redo
@@ -53,7 +53,7 @@ export function OntologyDesigner({ route }: OntologyDesignerProps) {
   }, [route.ontologyId, loadDraft]);
 
   return (
-    <div className={`designer-page ${darkMode ? '' : 'light-theme'}`}>
+    <div className={`designer-page ${themeClass(theme)}`}>
       {/* Top bar */}
       <div className="designer-topbar">
         <button className="designer-back-btn" onClick={() => navigate({ page: 'home' })}>

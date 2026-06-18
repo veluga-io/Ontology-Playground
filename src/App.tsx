@@ -26,13 +26,13 @@ import {
   PathFinderPanel
 } from './components';
 import type { CommandItem } from './components';
-import { useAppStore } from './store/appStore';
+import { useAppStore, themeClass, THEME_OPTIONS } from './store/appStore';
 import { useDesignerStore } from './store/designerStore';
 import { useRoute } from './hooks/useRoute';
 import { navigate } from './lib/router';
 import { decodeSharePayload } from './lib/shareCodec';
 import type { Catalogue } from './types/catalogue';
-import { Search, MessageSquare, Info, Compass, LayoutGrid, PenTool, BookOpen, FileJson, HelpCircle, Database, Sun, Moon, FileText } from 'lucide-react';
+import { Search, MessageSquare, Info, Compass, LayoutGrid, PenTool, BookOpen, FileJson, HelpCircle, Database, Palette, FileText } from 'lucide-react';
 import './styles/app.css';
 
 const AI_BUILDER_ENABLED = import.meta.env.VITE_ENABLE_AI_BUILDER === 'true';
@@ -56,7 +56,7 @@ function App() {
   const [toast, setToast] = useState<{ message: string; icon: string } | null>(null);
   const [mobilePanel, setMobilePanel] = useState<'graph' | 'quests' | 'inspector' | 'query'>('graph');
   const [showCommandPalette, setShowCommandPalette] = useState(false);
-  const { darkMode, earnedBadges, loadOntology, toggleDarkMode } = useAppStore();
+  const { theme, setTheme, earnedBadges, loadOntology } = useAppStore();
 
   // Show toast when a new badge is earned
   useEffect(() => {
@@ -133,6 +133,12 @@ function App() {
 
   const openLearn = useCallback(() => navigate({ page: 'learn' }), []);
 
+  const cycleTheme = useCallback(() => {
+    const idx = THEME_OPTIONS.findIndex((t) => t.id === theme);
+    const next = THEME_OPTIONS[(idx + 1) % THEME_OPTIONS.length];
+    setTheme(next.id);
+  }, [theme, setTheme]);
+
   // ── Global keyboard shortcuts ──────────────────────────
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -170,8 +176,8 @@ function App() {
     { id: 'about', label: 'About & Trademark Notice', icon: <Info size={18} />, action: () => setShowAbout(true) },
     { id: 'help', label: 'Help', icon: <HelpCircle size={18} />, shortcut: '?', action: () => setShowHelp(true) },
     { id: 'data-sources', label: 'Data Sources', icon: <Database size={18} />, action: () => setShowDataSources(true) },
-    { id: 'theme', label: darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode', icon: darkMode ? <Sun size={18} /> : <Moon size={18} />, action: toggleDarkMode },
-  ], [darkMode, openGallery, openDesigner, openLearn, toggleDarkMode]);
+    { id: 'theme', label: 'Switch Theme', icon: <Palette size={18} />, action: cycleTheme },
+  ], [openGallery, openDesigner, openLearn, cycleTheme]);
 
   // Full-page views
   if (route.page === 'designer') {
@@ -182,7 +188,7 @@ function App() {
   }
 
   return (
-    <div className={`app-container ${darkMode ? '' : 'light-theme'}`}>
+    <div className={`app-container ${themeClass(theme)}`}>
       <Header 
         onAboutClick={() => setShowAbout(true)}
         onHelpClick={() => setShowHelp(true)} 

@@ -3,7 +3,7 @@ import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 import type { Core } from 'cytoscape';
 import { useDesignerStore } from '../../store/designerStore';
-import { useAppStore } from '../../store/appStore';
+import { useAppStore, type ThemeId } from '../../store/appStore';
 import { serializeToRDF } from '../../lib/rdf/serializer';
 import { parseRDF } from '../../lib/rdf/parser';
 import { highlightRdf, RDF_HIGHLIGHT_DARK, RDF_HIGHLIGHT_LIGHT } from '../../lib/rdf/highlighter';
@@ -13,7 +13,7 @@ cytoscape.use(fcose);
 export function DesignerPreview() {
   const [activeTab, setActiveTab] = useState<'graph' | 'rdf'>('graph');
   const { ontology, selectEntity, selectRelationship } = useDesignerStore();
-  const darkMode = useAppStore((s) => s.darkMode);
+  const theme = useAppStore((s) => s.theme);
 
   return (
     <div className="designer-preview">
@@ -35,7 +35,7 @@ export function DesignerPreview() {
       {activeTab === 'graph' ? (
         <GraphPreview
           ontology={ontology}
-          darkMode={darkMode}
+          theme={theme}
           onSelectEntity={selectEntity}
           onSelectRelationship={selectRelationship}
         />
@@ -50,22 +50,14 @@ export function DesignerPreview() {
 
 interface GraphPreviewProps {
   ontology: { entityTypes: { id: string; name: string; icon: string; color: string }[]; relationships: { id: string; name: string; from: string; to: string; cardinality: string }[] };
-  darkMode: boolean;
+  theme: ThemeId;
   onSelectEntity: (id: string | null) => void;
   onSelectRelationship: (id: string | null) => void;
 }
 
-function GraphPreview({ ontology, darkMode, onSelectEntity, onSelectRelationship }: GraphPreviewProps) {
+function GraphPreview({ ontology, theme, onSelectEntity, onSelectRelationship }: GraphPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<Core | null>(null);
-
-  const themeColors = useMemo(
-    () =>
-      darkMode
-        ? { nodeText: '#B3B3B3', edgeColor: '#505050', edgeText: '#808080' }
-        : { nodeText: '#2A2A2A', edgeColor: '#888888', edgeText: '#555555' },
-    [darkMode],
-  );
 
   const buildElements = useCallback(() => {
     const nodes = ontology.entityTypes.map((e) => ({
@@ -77,9 +69,16 @@ function GraphPreview({ ontology, darkMode, onSelectEntity, onSelectRelationship
     return [...nodes, ...edges];
   }, [ontology]);
 
-  // Create graph once; update elements incrementally
+  // Create graph; recreate on theme change. Graph colors are read from the
+  // active theme's CSS custom properties so each theme uses its own palette.
   useEffect(() => {
     if (!containerRef.current) return;
+    const cssVars = getComputedStyle(containerRef.current);
+    const themeColors = {
+      nodeText: cssVars.getPropertyValue('--graph-node-text').trim() || '#B3B3B3',
+      edgeColor: cssVars.getPropertyValue('--graph-edge-color').trim() || '#505050',
+      edgeText: cssVars.getPropertyValue('--graph-edge-text').trim() || '#808080',
+    };
     const cy = cytoscape({
       container: containerRef.current,
       elements: buildElements(),
@@ -144,7 +143,7 @@ function GraphPreview({ ontology, darkMode, onSelectEntity, onSelectRelationship
     cyRef.current = cy;
     return () => { cy.destroy(); cyRef.current = null; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [themeColors]); // Only recreate on theme change
+  }, [theme]); // Recreate on theme change to re-read CSS colors
 
   // Incrementally sync nodes & edges without full relayout
   useEffect(() => {

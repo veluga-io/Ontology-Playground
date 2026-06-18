@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { useAppStore } from '../store/appStore';
+import { useAppStore, THEME_OPTIONS } from '../store/appStore';
 import { useRoute } from '../hooks/useRoute';
 import { routeToHash } from '../lib/router';
 import { encodeSharePayload } from '../lib/shareCodec';
 import { serializeToRDF } from '../lib/rdf/serializer';
-import { Moon, Sun, Database, Trophy, HelpCircle, FileJson, LayoutGrid, Sparkles, FileText, Share2, PenTool, BookOpen, Menu, X, Download, Info } from 'lucide-react';
+import { Palette, Check, Database, Trophy, HelpCircle, FileJson, LayoutGrid, Sparkles, FileText, Share2, PenTool, BookOpen, Menu, X, Download, Info } from 'lucide-react';
 
 interface HeaderProps {
   onAboutClick: () => void;
@@ -19,11 +19,13 @@ interface HeaderProps {
 }
 
 export function Header({ onAboutClick, onHelpClick, onDataSourcesClick, onImportExportClick, onGalleryClick, onDesignerClick, onLearnClick, onNLBuilderClick, onSummaryClick }: HeaderProps) {
-  const { darkMode, toggleDarkMode, totalPoints, earnedBadges, currentOntology, dataBindings } = useAppStore();
+  const { theme, setTheme, totalPoints, earnedBadges, currentOntology, dataBindings } = useAppStore();
   const route = useRoute();
   const [shareStatus, setShareStatus] = useState<'idle' | 'copying' | 'copied' | 'downloaded'>('idle');
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
 
   const ontologyDisplayName = currentOntology.name || 'Untitled Ontology';
 
@@ -80,6 +82,18 @@ export function Header({ onAboutClick, onHelpClick, onDataSourcesClick, onImport
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [menuOpen]);
+
+  // Close theme menu when clicking outside
+  useEffect(() => {
+    if (!themeMenuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(e.target as Node)) {
+        setThemeMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [themeMenuOpen]);
 
   const menuAction = (fn: () => void) => () => { setMenuOpen(false); fn(); };
 
@@ -154,9 +168,35 @@ export function Header({ onAboutClick, onHelpClick, onDataSourcesClick, onImport
         <button className="icon-btn" onClick={onDataSourcesClick} data-tooltip="Data Sources" aria-label="Data Sources">
           <Database size={20} />
         </button>
-        <button className="icon-btn" onClick={toggleDarkMode} data-tooltip={darkMode ? 'Light Mode' : 'Dark Mode'} aria-label={darkMode ? 'Light Mode' : 'Dark Mode'}>
-          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
+        <div className="theme-picker" ref={themeMenuRef}>
+          <button
+            className="icon-btn"
+            onClick={() => setThemeMenuOpen((o) => !o)}
+            data-tooltip="Theme"
+            aria-label="Theme"
+            aria-haspopup="menu"
+            aria-expanded={themeMenuOpen}
+          >
+            <Palette size={20} />
+          </button>
+          {themeMenuOpen && (
+            <div className="theme-menu" role="menu">
+              {THEME_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  className={`theme-menu-item ${theme === opt.id ? 'active' : ''}`}
+                  onClick={() => { setTheme(opt.id); setThemeMenuOpen(false); }}
+                  role="menuitemradio"
+                  aria-checked={theme === opt.id}
+                >
+                  <span className="theme-swatch" style={{ background: opt.swatch }} />
+                  {opt.label}
+                  {theme === opt.id && <Check size={16} className="theme-check" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Mobile hamburger menu */}
@@ -207,10 +247,19 @@ export function Header({ onAboutClick, onHelpClick, onDataSourcesClick, onImport
             <button className="mobile-menu-item" onClick={menuAction(onDataSourcesClick)}>
               <Database size={18} /> Data Sources
             </button>
-            <button className="mobile-menu-item" onClick={menuAction(toggleDarkMode)}>
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-              {darkMode ? 'Light Mode' : 'Dark Mode'}
-            </button>
+            <div className="mobile-menu-themes">
+              {THEME_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  className={`mobile-menu-item ${theme === opt.id ? 'active' : ''}`}
+                  onClick={menuAction(() => setTheme(opt.id))}
+                >
+                  <span className="theme-swatch" style={{ background: opt.swatch }} />
+                  {opt.label}
+                  {theme === opt.id && <Check size={16} className="theme-check" />}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 import type { Core, EventObject, LayoutOptions } from 'cytoscape';
@@ -12,6 +12,24 @@ declare global {
   interface Window {
     __ONTOLOGY_PREVIEW_CY__?: Core;
   }
+}
+
+type GraphColors = { nodeText: string; edgeColor: string; edgeText: string };
+
+// Read graph colors from the active theme's CSS custom properties, falling
+// back to the dark/light defaults when the variables can't be resolved yet.
+function readGraphColors(darkMode: boolean, el?: HTMLElement | null): GraphColors {
+  const fallback: GraphColors = darkMode
+    ? { nodeText: '#B3B3B3', edgeColor: '#505050', edgeText: '#808080' }
+    : { nodeText: '#2A2A2A', edgeColor: '#888888', edgeText: '#555555' };
+  const source = el ?? (typeof document !== 'undefined' ? document.querySelector<HTMLElement>('.app-container') : null);
+  if (!source) return fallback;
+  const cs = getComputedStyle(source);
+  return {
+    nodeText: cs.getPropertyValue('--graph-node-text').trim() || fallback.nodeText,
+    edgeColor: cs.getPropertyValue('--graph-edge-color').trim() || fallback.edgeColor,
+    edgeText: cs.getPropertyValue('--graph-edge-text').trim() || fallback.edgeText,
+  };
 }
 
 export function OntologyGraph() {
@@ -45,7 +63,8 @@ export function OntologyGraph() {
     activeQuest,
     currentStepIndex,
     advanceQuestStep,
-    darkMode
+    darkMode,
+    theme
   } = useAppStore();
 
   // Use refs for quest state to avoid re-creating the graph when quest changes
@@ -60,11 +79,12 @@ export function OntologyGraph() {
     advanceQuestStepRef.current = advanceQuestStep;
   }, [activeQuest, currentStepIndex, advanceQuestStep]);
   
-  // Theme-aware colors - memoized to prevent unnecessary re-renders
-  const themeColors = useMemo(() => darkMode 
-    ? { nodeText: '#B3B3B3', edgeColor: '#505050', edgeText: '#808080' }
-    : { nodeText: '#2A2A2A', edgeColor: '#888888', edgeText: '#555555' },
-  [darkMode]);
+  // Theme-aware colors, sourced from the active theme's CSS variables so each
+  // theme (including the derived ones) renders with its own graph palette.
+  const [themeColors, setThemeColors] = useState<GraphColors>(() => readGraphColors(darkMode));
+  useEffect(() => {
+    setThemeColors(readGraphColors(darkMode, containerRef.current));
+  }, [theme, darkMode]);
 
   // Initial theme colors for graph creation
   const initialThemeColors = useRef(themeColors);
@@ -505,7 +525,8 @@ export function OntologyGraph() {
     const cy = getCy();
     if (!cy) return;
     try {
-      const bg = darkMode ? '#1E1E1E' : '#F5F5F5';
+      const graphCs = containerRef.current ? getComputedStyle(containerRef.current) : null;
+      const bg = (graphCs && graphCs.getPropertyValue('--graph-bg').trim()) || (darkMode ? '#1E1E1E' : '#F5F5F5');
       const pngData = cy.png({ scale: 2, full: true, bg });
       const link = document.createElement('a');
       link.href = pngData;

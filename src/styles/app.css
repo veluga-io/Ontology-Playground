@@ -92,6 +92,147 @@
   --about-link-hover-color: #003a63;
 }
 
+/* Aurora theme — deep teal base with mint accents (dark) */
+.theme-aurora {
+  --ms-blue: #2AAA92;
+  --ms-blue-dark: #1F8D78;
+  --ms-blue-light: #3FD0B4;
+  --info: #2AAA92;
+  --ms-cyan: #6AD6F9;
+
+  --bg-primary: #0E2B27;
+  --bg-secondary: #14352F;
+  --bg-tertiary: #1C463E;
+  --bg-elevated: #173E37;
+  --text-primary: #EAFBF6;
+  --text-secondary: #A6D2C8;
+  --text-tertiary: #779E95;
+  --border-color: #265C53;
+  --border-subtle: #1C4640;
+
+  --shadow-glow: 0 0 20px rgba(42, 170, 146, 0.35);
+
+  --graph-bg: #0F2D28;
+  --graph-node-text: #C2E6DC;
+  --graph-edge-color: #4F8C7F;
+  --graph-edge-text: #8FBDB2;
+
+  --chess-square-dark: rgba(8, 40, 36, 0.85);
+  --chess-square-light: rgba(16, 64, 58, 0.6);
+  --about-link-color: #6DE9BB;
+  --about-link-hover-color: #ABE88E;
+}
+
+/* Crimson theme — clean light surfaces with a crimson accent (light) */
+.theme-crimson {
+  --ms-blue: #D6002A;
+  --ms-blue-dark: #A8001F;
+  --ms-blue-light: #E63956;
+  --info: #D6002A;
+
+  --bg-primary: #F8F9FA;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #EEF0F2;
+  --bg-elevated: #FFFFFF;
+  --text-primary: #1B1F24;
+  --text-secondary: #495057;
+  --text-tertiary: #6C757D;
+  --border-color: #D6DAE0;
+  --border-subtle: #E3E6EA;
+
+  --shadow-glow: 0 0 20px rgba(214, 0, 42, 0.22);
+
+  --graph-bg: #FFFFFF;
+  --graph-node-text: #1B1F24;
+  --graph-edge-color: #ADB5BD;
+  --graph-edge-text: #6C757D;
+
+  /* Opaque light base so the canvas reads light (the dark body must not show
+     through); faint crimson squares keep the branded checker pattern. */
+  --chess-square-dark: rgba(214, 0, 42, 0.07);
+  --chess-square-light: #FBF7F8;
+  --about-link-color: #A8001F;
+  --about-link-hover-color: #D6002A;
+}
+
+/* Theme picker (header) */
+.theme-picker {
+  position: relative;
+  display: inline-flex;
+}
+
+.theme-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 172px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.theme-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.theme-menu-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.theme-menu-item.active {
+  color: var(--ms-blue);
+  font-weight: 600;
+}
+
+.theme-menu-item .theme-check {
+  margin-left: auto;
+}
+
+.theme-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.mobile-menu-themes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.mobile-menu-themes .theme-check {
+  margin-left: auto;
+}
+
+.mobile-menu-item.active {
+  color: var(--ms-blue);
+  font-weight: 600;
+}
+
 .about-link {
   color: var(--about-link-color);
   text-decoration: underline;
