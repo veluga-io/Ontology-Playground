@@ -65,6 +65,21 @@ const en = {
   'learn.underReview': '🔍 Under human review',
   'learn.openStep': 'Open step',
   'learn.readArticle': 'Read article',
+  'learn.presentSlides': 'Present as slides',
+  'learn.present': 'Present',
+  'learn.previous': 'Previous',
+  'learn.next': 'Next',
+  'learn.correct': 'Correct!',
+  'learn.notQuite': 'Not quite',
+  'learn.ontologyNotFound': 'Ontology "{id}" not found in catalogue',
+  'learn.catalogueLoadError': 'Failed to load catalogue',
+  'learn.exitPresentation': 'Exit (Esc)',
+  'learn.previousSlide': 'Previous slide',
+  'learn.nextSlide': 'Next slide',
+  'learn.previousArticle': 'Previous: {title}',
+  'learn.nextArticle': 'Next: {title}',
+  'learn.previousHint': 'previous: {title}',
+  'learn.nextHint': 'next: {title}',
 } as const;
 
 const ko: { [K in keyof typeof en]: string } = {
@@ -132,6 +147,21 @@ const ko: { [K in keyof typeof en]: string } = {
   'learn.underReview': '🔍 검토 중',
   'learn.openStep': '단계 열기',
   'learn.readArticle': '문서 읽기',
+  'learn.presentSlides': '슬라이드로 발표',
+  'learn.present': '발표',
+  'learn.previous': '이전',
+  'learn.next': '다음',
+  'learn.correct': '정답입니다!',
+  'learn.notQuite': '다시 생각해 보세요',
+  'learn.ontologyNotFound': '카탈로그에서 온톨로지 "{id}"을(를) 찾을 수 없습니다',
+  'learn.catalogueLoadError': '카탈로그를 불러오지 못했습니다',
+  'learn.exitPresentation': '발표 종료 (Esc)',
+  'learn.previousSlide': '이전 슬라이드',
+  'learn.nextSlide': '다음 슬라이드',
+  'learn.previousArticle': '이전: {title}',
+  'learn.nextArticle': '다음: {title}',
+  'learn.previousHint': '이전: {title}',
+  'learn.nextHint': '다음: {title}',
 };
 
 export type MessageKey = keyof typeof en;

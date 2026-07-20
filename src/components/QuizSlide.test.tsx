@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { beforeEach, describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
@@ -8,6 +8,7 @@ import {
   splitArticleSegments,
   type QuizData,
 } from './LearnPage';
+import { useAppStore } from '../store/appStore';
 
 // ---------------------------------------------------------------------------
 // QuizSlide React component
@@ -24,6 +25,10 @@ const sampleQuiz: QuizData = {
 };
 
 describe('QuizSlide', () => {
+  beforeEach(() => {
+    useAppStore.getState().setLocale('en');
+  });
+
   it('renders the question and all options', () => {
     render(<QuizSlide quiz={sampleQuiz} />);
     expect(screen.getByText('What is an ontology?')).toBeTruthy();

@@ -1,7 +1,8 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { LearnPage } from './LearnPage';
 import type { LearnManifest } from '../types/learn';
+import { useAppStore } from '../store/appStore';
 
 const manifestFixture: LearnManifest = {
   generatedAt: '2026-05-04T00:00:00.000Z',
@@ -58,6 +59,10 @@ const manifestFixture: LearnManifest = {
 };
 
 describe('LearnPage course ordering', () => {
+  beforeEach(() => {
+    useAppStore.getState().setLocale('ko');
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -74,7 +79,27 @@ describe('LearnPage course ordering', () => {
       expect(screen.getByText('Ontology Fundamentals')).toBeInTheDocument();
     });
 
+    expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining('learn.ko.json'));
+
     const titles = Array.from(container.querySelectorAll('.learn-card h2')).map((node) => node.textContent?.trim());
     expect(titles).toEqual(['Ontology Fundamentals', 'Finance Path', 'Healthcare Path']);
+  });
+
+  it('falls back to English when the Korean manifest is unavailable', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({ ok: false, status: 404 } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(manifestFixture),
+      } as Response);
+
+    render(<LearnPage route={{ page: 'learn' }} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Ontology Fundamentals')).toBeInTheDocument();
+    });
+
+    expect(globalThis.fetch).toHaveBeenNthCalledWith(1, expect.stringContaining('learn.ko.json'));
+    expect(globalThis.fetch).toHaveBeenNthCalledWith(2, expect.stringContaining('learn.en.json'));
   });
 });
