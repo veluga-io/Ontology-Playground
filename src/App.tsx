@@ -44,7 +44,7 @@ const NLBuilderModal = AI_BUILDER_ENABLED
 
 function App() {
   const route = useRoute();
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
 
   const [showWelcome, setShowWelcome] = useState(false);
   const [showTour, setShowTour] = useState(() => !isTourDismissed());
@@ -59,6 +59,10 @@ function App() {
   const [mobilePanel, setMobilePanel] = useState<'graph' | 'quests' | 'inspector' | 'query'>('graph');
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const { theme, setTheme, earnedBadges, loadOntology } = useAppStore();
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   // Show toast when a new badge is earned
   useEffect(() => {

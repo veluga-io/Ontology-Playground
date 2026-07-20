@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, X } from 'lucide-react';
+import { useI18n } from '../i18n/useI18n';
 
 interface TourStep {
   target: string;        // CSS selector for the element to spotlight
@@ -8,39 +9,6 @@ interface TourStep {
   description: string;
   placement: 'bottom' | 'top' | 'left' | 'right';
 }
-
-const tourSteps: TourStep[] = [
-  {
-    target: '.header',
-    title: 'Navigation & Actions',
-    description: 'Use the toolbar to access the Catalogue, Designer, Learn articles, Import/Export, and more. Press ⌘K anytime to open the command palette.',
-    placement: 'bottom',
-  },
-  {
-    target: '.graph-container',
-    title: 'Ontology Graph',
-    description: 'This is your ontology visualized as an interactive graph. Click on entity nodes or relationship edges to inspect them.',
-    placement: 'bottom',
-  },
-  {
-    target: '.quest-panel',
-    title: 'Quests',
-    description: 'Complete guided quests to learn ontology concepts step by step. Earn badges and points along the way!',
-    placement: 'right',
-  },
-  {
-    target: '.right-sidebar',
-    title: 'Inspector & Query',
-    description: 'Select an entity to see its properties and data bindings. Use the query bar at the bottom to ask natural language questions.',
-    placement: 'left',
-  },
-  {
-    target: '.header-actions [data-tooltip="Designer"]',
-    title: 'Ontology Designer',
-    description: 'Build your own ontologies from scratch or start from a template. Export as RDF or submit to the community catalogue.',
-    placement: 'bottom',
-  },
-];
 
 const STORAGE_KEY = 'ontology-quest-tour-dismissed';
 
@@ -58,6 +26,14 @@ function isElementVisible(selector: string): boolean {
 }
 
 export function GuidedTour({ onComplete }: GuidedTourProps) {
+  const { t } = useI18n();
+  const tourSteps = useMemo<TourStep[]>(() => [
+    { target: '.header', title: t('tour.navigationTitle'), description: t('tour.navigationText'), placement: 'bottom' },
+    { target: '.graph-container', title: t('tour.graphTitle'), description: t('tour.graphText'), placement: 'bottom' },
+    { target: '.quest-panel', title: t('shell.quests'), description: t('tour.questsText'), placement: 'right' },
+    { target: '.right-sidebar', title: t('tour.inspectorTitle'), description: t('tour.inspectorText'), placement: 'left' },
+    { target: '[data-tour="designer"]', title: t('tour.designerTitle'), description: t('tour.designerText'), placement: 'bottom' },
+  ], [t]);
   const [visibleSteps, setVisibleSteps] = useState<TourStep[]>([]);
   const [stepIdx, setStepIdx] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
@@ -78,7 +54,7 @@ export function GuidedTour({ onComplete }: GuidedTourProps) {
       return;
     }
     setVisibleSteps(visible);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dismiss, tourSteps]);
 
   const current = visibleSteps[stepIdx];
 
@@ -175,7 +151,7 @@ export function GuidedTour({ onComplete }: GuidedTourProps) {
       >
         <div className="tour-tooltip-header">
           <span className="tour-tooltip-step">{stepIdx + 1}/{visibleSteps.length}</span>
-          <button className="tour-tooltip-close" onClick={dismiss} aria-label="Close tour">
+          <button className="tour-tooltip-close" onClick={dismiss} aria-label={t('tour.close')}>
             <X size={16} />
           </button>
         </div>
@@ -184,19 +160,19 @@ export function GuidedTour({ onComplete }: GuidedTourProps) {
         <div className="tour-tooltip-actions">
           {stepIdx > 0 && (
             <button className="tour-btn tour-btn-secondary" onClick={prev}>
-              <ChevronLeft size={14} /> Back
+              <ChevronLeft size={14} /> {t('tour.back')}
             </button>
           )}
           <button className="tour-btn tour-btn-primary" onClick={next}>
             {stepIdx < visibleSteps.length - 1 ? (
-              <>Next <ChevronRight size={14} /></>
+              <>{t('tour.next')} <ChevronRight size={14} /></>
             ) : (
-              'Get started!'
+              t('tour.start')
             )}
           </button>
         </div>
         <button className="tour-skip" onClick={dismiss}>
-          Skip tour · don't show again
+          {t('tour.skip')}
         </button>
       </motion.div>
     </AnimatePresence>

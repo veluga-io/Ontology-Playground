@@ -13,6 +13,7 @@ function setupDataBindingQuestStep() {
 describe('InspectorPanel quest progression', () => {
   beforeEach(() => {
     useAppStore.getState().resetToDefault();
+    useAppStore.getState().setLocale('ko');
     vi.restoreAllMocks();
     HTMLElement.prototype.scrollIntoView = vi.fn();
   });
@@ -24,7 +25,7 @@ describe('InspectorPanel quest progression', () => {
 
     expect(useAppStore.getState().currentStepIndex).toBe(1);
 
-    const propertiesHeader = screen.getByText(/Properties \(\d+\)/i);
+    const propertiesHeader = screen.getByText(/속성 \(\d+\)/);
     const propertiesSection = propertiesHeader.closest('.inspector-section');
     expect(propertiesSection).toBeTruthy();
 
@@ -41,7 +42,7 @@ describe('InspectorPanel quest progression', () => {
 
     expect(useAppStore.getState().currentStepIndex).toBe(1);
 
-    const bindingsHeader = screen.getByText('Data Bindings');
+    const bindingsHeader = screen.getByText('데이터 바인딩');
     const bindingsSection = bindingsHeader.closest('.inspector-section');
     expect(bindingsSection).toBeTruthy();
 

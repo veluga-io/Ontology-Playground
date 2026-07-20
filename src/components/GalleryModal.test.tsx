@@ -106,6 +106,7 @@ describe('GalleryModal', () => {
   beforeEach(() => {
     onClose.mockClear();
     useAppStore.getState().resetToDefault();
+    useAppStore.getState().setLocale('ko');
     window.location.hash = '#/catalogue';
   });
 
@@ -118,7 +119,7 @@ describe('GalleryModal', () => {
     render(<GalleryModal onClose={onClose} />);
 
     // Loading state appears first
-    expect(screen.getByText('Loading catalogue…')).toBeTruthy();
+    expect(screen.getByText('카탈로그를 불러오는 중…')).toBeTruthy();
 
     // Entries appear after fetch
     await waitFor(() => {
@@ -126,7 +127,7 @@ describe('GalleryModal', () => {
     });
     expect(screen.getByText('Hospital Network')).toBeTruthy();
     expect(screen.getByText('Finance Ledger')).toBeTruthy();
-    expect(screen.queryByText('Loading catalogue…')).toBeNull();
+    expect(screen.queryByText('카탈로그를 불러오는 중…')).toBeNull();
   });
 
   it('shows error state on fetch failure', async () => {
@@ -134,7 +135,7 @@ describe('GalleryModal', () => {
     render(<GalleryModal onClose={onClose} />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Failed to load catalogue/)).toBeTruthy();
+      expect(screen.getByText(/카탈로그를 불러오지 못했습니다/)).toBeTruthy();
     });
   });
 
@@ -147,7 +148,7 @@ describe('GalleryModal', () => {
       expect(screen.getByText('Fourth Coffee')).toBeTruthy();
     });
 
-    const searchInput = screen.getByPlaceholderText(/Search by name/);
+    const searchInput = screen.getByPlaceholderText(/이름, 태그, 작성자/);
     await user.type(searchInput, 'hospital');
 
     expect(screen.queryByText('Fourth Coffee')).toBeNull();
@@ -164,7 +165,7 @@ describe('GalleryModal', () => {
       expect(screen.getByText('Fourth Coffee')).toBeTruthy();
     });
 
-    const searchInput = screen.getByPlaceholderText(/Search by name/);
+    const searchInput = screen.getByPlaceholderText(/이름, 태그, 작성자/);
     await user.type(searchInput, 'ledger');
 
     expect(screen.queryByText('Fourth Coffee')).toBeNull();
@@ -182,7 +183,7 @@ describe('GalleryModal', () => {
     });
 
     // Select healthcare category
-    const categorySelect = screen.getByDisplayValue('All categories');
+    const categorySelect = screen.getByDisplayValue('모든 카테고리');
     await user.selectOptions(categorySelect, 'healthcare');
 
     expect(screen.queryByText('Fourth Coffee')).toBeNull();
@@ -199,7 +200,7 @@ describe('GalleryModal', () => {
       expect(screen.getByText('Fourth Coffee')).toBeTruthy();
     });
 
-    const sourceSelect = screen.getByDisplayValue('All sources');
+    const sourceSelect = screen.getByDisplayValue('모든 출처');
     await user.selectOptions(sourceSelect, 'community');
 
     expect(screen.queryByText('Fourth Coffee')).toBeNull();
@@ -216,10 +217,10 @@ describe('GalleryModal', () => {
       expect(screen.getByText('Fourth Coffee')).toBeTruthy();
     });
 
-    const searchInput = screen.getByPlaceholderText(/Search by name/);
+    const searchInput = screen.getByPlaceholderText(/이름, 태그, 작성자/);
     await user.type(searchInput, 'xyznonexistent');
 
-    expect(screen.getByText('No ontologies match your filters.')).toBeTruthy();
+    expect(screen.getByText('필터와 일치하는 온톨로지가 없습니다.')).toBeTruthy();
   });
 
   it('loads an ontology and navigates to its deep link', async () => {
@@ -232,7 +233,7 @@ describe('GalleryModal', () => {
     });
 
     // Click the first non-active ontology's "Load" button.
-    const loadButtons = screen.getAllByText('Load');
+    const loadButtons = screen.getAllByText('불러오기');
     await user.click(loadButtons[0]);
 
     const state = useAppStore.getState();
@@ -253,7 +254,7 @@ describe('GalleryModal', () => {
     // "Community" appears in the source filter dropdown AND as a badge.
     // Only Hospital Network is community, so there should be exactly 1 badge
     // plus 1 option in the dropdown = 2 total.
-    const allCommunity = screen.getAllByText('Community');
+    const allCommunity = screen.getAllByText('커뮤니티');
     expect(allCommunity).toHaveLength(2); // 1 dropdown option + 1 badge
 
     // The badge is a <span> inside a card, the option is in a <select>
@@ -270,11 +271,11 @@ describe('GalleryModal', () => {
     });
 
     // Fourth Coffee: 3 entities, 2 relationships
-    expect(screen.getByText('3 entities')).toBeTruthy();
-    expect(screen.getByText('2 relationships')).toBeTruthy();
+    expect(screen.getByText('엔터티 3개')).toBeTruthy();
+    expect(screen.getByText('관계 2개')).toBeTruthy();
     // Hospital Network: 4 entities, 3 relationships
-    expect(screen.getByText('4 entities')).toBeTruthy();
-    expect(screen.getByText('3 relationships')).toBeTruthy();
+    expect(screen.getByText('엔터티 4개')).toBeTruthy();
+    expect(screen.getByText('관계 3개')).toBeTruthy();
   });
 
   it('Edit in Designer loads ontology into designer store and navigates to designer', async () => {
@@ -287,7 +288,7 @@ describe('GalleryModal', () => {
     });
 
     // Click the "Edit in Designer" pencil button for the first entry
-    const editButtons = screen.getAllByTitle('Edit in Designer');
+    const editButtons = screen.getAllByTitle('디자이너에서 편집');
     expect(editButtons.length).toBeGreaterThan(0);
     await user.click(editButtons[0]);
 

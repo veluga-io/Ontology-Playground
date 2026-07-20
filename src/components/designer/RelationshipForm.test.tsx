@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { RelationshipForm } from './RelationshipForm';
 import { useDesignerStore } from '../../store/designerStore';
+import { useAppStore } from '../../store/appStore';
 
 // Reset the draft between tests
 beforeEach(() => {
   useDesignerStore.getState().resetDraft();
+  useAppStore.getState().setLocale('en');
 });
 
 describe('RelationshipForm — self-referencing relationships (issue #64)', () => {
