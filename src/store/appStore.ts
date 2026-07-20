@@ -6,6 +6,7 @@ import { cosmicCoffeeOntology, sampleBindings } from '../data/ontology';
 import { generateQuestsForOntology } from '../data/questGenerator';
 
 export type ThemeId = 'dark' | 'light' | 'aurora' | 'crimson';
+export type Locale = 'ko' | 'en';
 
 export const THEME_OPTIONS: { id: ThemeId; label: string; swatch: string }[] = [
   { id: 'dark', label: 'Dark', swatch: '#1B1B1B' },
@@ -54,7 +55,19 @@ function getInitialTheme(): ThemeId {
   }
 }
 
+function getInitialLocale(): Locale {
+  if (typeof window === 'undefined' || !('localStorage' in window)) {
+    return 'ko';
+  }
+  try {
+    return window.localStorage.getItem('locale') === 'en' ? 'en' : 'ko';
+  } catch {
+    return 'ko';
+  }
+}
+
 const initialTheme = getInitialTheme();
+const initialLocale = getInitialLocale();
 
 interface AppState {
   // Ontology State
@@ -69,6 +82,7 @@ interface AppState {
   showDataBindings: boolean;
   theme: ThemeId;
   darkMode: boolean;
+  locale: Locale;
   
   // Quest State
   availableQuests: Quest[];
@@ -96,6 +110,7 @@ interface AppState {
   toggleDataBindings: () => void;
   setTheme: (theme: ThemeId) => void;
   toggleDarkMode: () => void;
+  setLocale: (locale: Locale) => void;
   
   // Quest Actions
   startQuest: (questId: string) => void;
@@ -122,6 +137,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   showDataBindings: false,
   theme: initialTheme,
   darkMode: isDarkTheme(initialTheme),
+  locale: initialLocale,
   
   // Initial Quest State - use default quests for Fourth Coffee
   availableQuests: defaultQuests,
@@ -199,6 +215,14 @@ export const useAppStore = create<AppState>((set, get) => ({
   toggleDarkMode: () => {
     const next: ThemeId = isDarkTheme(get().theme) ? 'light' : 'dark';
     get().setTheme(next);
+  },
+  setLocale: (locale) => {
+    try {
+      localStorage.setItem('locale', locale);
+    } catch {
+      // Ignore persistence errors; still update in-memory state
+    }
+    set({ locale });
   },
   
   // Quest Actions
