@@ -6,7 +6,7 @@ import { Search, Sparkles, X, Lightbulb } from 'lucide-react';
 import { useI18n } from '../i18n/useI18n';
 
 export function QueryPlayground() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [input, setInput] = useState('');
   const [result, setResult] = useState<string | null>(null);
   const [interpretation, setInterpretation] = useState<string | null>(null);
@@ -24,8 +24,8 @@ export function QueryPlayground() {
 
   // Generate dynamic suggestions based on current ontology
   const sampleQueries = useMemo(() => 
-    generateQuerySuggestions(currentOntology),
-    [currentOntology]
+    generateQuerySuggestions(currentOntology, locale),
+    [currentOntology, locale]
   );
 
   const handleQuery = useCallback(() => {
@@ -36,7 +36,7 @@ export function QueryPlayground() {
     
     // Simulate processing delay for realistic feel
     setTimeout(() => {
-      const response = processQuery(input, currentOntology);
+      const response = processQuery(input, currentOntology, locale);
       
       setResult(response.result);
       setInterpretation(response.interpretation || null);
@@ -53,7 +53,7 @@ export function QueryPlayground() {
       
       setIsProcessing(false);
     }, 600);
-  }, [input, currentOntology, setHighlightedEntities, setHighlightedRelationships, activeQuest, currentStepIndex, advanceQuestStep]);
+  }, [input, currentOntology, locale, setHighlightedEntities, setHighlightedRelationships, activeQuest, currentStepIndex, advanceQuestStep]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {

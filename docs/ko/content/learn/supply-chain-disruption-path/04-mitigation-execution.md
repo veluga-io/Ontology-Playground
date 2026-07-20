@@ -18,7 +18,7 @@ order: 4
 Data Agent Query:
   "Which suppliers are affected by the Taiwan earthquake?"
   ↓
-  Matches: Supplier.country="Taiwan" + DisruptionEvent.region="Taiwan" 
+  Matches: Supplier.country="Taiwan" + DisruptionEvent.region="Taiwan"
            + DisruptionEvent.type="Natural Disaster"
   ↓
   Result: 3 critical suppliers identified
@@ -36,7 +36,7 @@ Data Agent Query:
   Follows: Supplier → supplies → Component
   ↓
   Result: 47 components identified
-  
+
 Then: "For these 47 components, which product lines use them?"
   ↓
   Follows: Component → usedIn → ProductLine
@@ -54,12 +54,12 @@ Calculation Engine:
   For each exposed ProductLine:
     revenue_at_risk = annualRevenue / 365 * daysOfSupplyOnHand
     urgency = 100 - (daysOfSupplyOnHand * 10)
-  
+
   Aggregate:
     total_revenue_at_risk = SUM(revenue_at_risk)
     critical_product_lines = WHERE urgency > 70
-    
-  Result: 
+
+  Result:
     Total at risk: $127M
     Critical timeline: 3 days
     Affected customers: 450,000+
@@ -77,12 +77,12 @@ Recommendation Engine:
        - qualificationStatus="Approved"
        - capacityAvailable >= demand
        - country NOT IN earthquake_region
-    
+
     2. Score each alternative by:
        - Lead time saved (leadTimeSavedDays)
        - Cost impact (pricePremiumPercent)
        - Reliability (reliabilityScore)
-    
+
     3. Recommend top 3 actions with ROI:
        - Action A: Activate ChipX Europe (save 2 days, cost +$2M)
        - Action B: Increase safety stock (cost $500K, cover 2 weeks)
@@ -94,9 +94,9 @@ Recommendation Engine:
 **당신의 온톨로지은 자동화된 워크플로우를 트리거합니다**:
 
 ```
-IF RiskAssessment.revenueAtRisk > $50M AND 
+IF RiskAssessment.revenueAtRisk > $50M AND
    RiskAssessment.timeToImpactDays < 5:
-   
+
    THEN:
      1. Create PurchaseOrder for recommended AlternativeSupplier
      2. Update ProductionSchedule with new timeline
@@ -121,28 +121,28 @@ IF RiskAssessment.revenueAtRisk > $50M AND
           ├─ severity = "Critical"
           ├─ region = "Taiwan"
           ├─ estimatedDurationDays = 7
-          
+
 10:46 AM: Data Agent traces impact
           ├─ 3 critical suppliers affected
           ├─ 47 components halted
           ├─ 12 product lines exposed
           ├─ $127M revenue at risk
           ├─ 3 days to production stoppage
-          
+
 10:47 AM: RiskAssessment created
           ├─ assesses impact for each product line
           ├─ recommends actions ranked by ROI
-          
+
 10:48 AM: MitigationActions auto-created
           ├─ PO issued to ChipX Europe (approved alternative)
           ├─ Safety stock orders placed
           ├─ Alerts sent to procurement, ops, finance
-          
+
 10:50 AM: Activator triggered
           ├─ Real-time dashboard shows impact + actions
           ├─ Escalation policy notifies leadership
           ├─ Procurement team acknowledges + confirms receipt
-          
+
 11:30 AM: MitigationAction.status = "In Progress"
           ├─ Purchase order in progress
           ├─ ChipX Europe confirms 48-hour shipment
@@ -158,7 +158,7 @@ Every 4 hours:
   - Recalculate RiskAssessment with latest inventory data
   - Alert if leadTimeSavedDays slips (alternative supplier delays)
   - Recommend contingency actions if needed
-  
+
 Day 3: ChipX Europe shipment received
   ├─ MitigationAction.status = "Completed"
   ├─ Inventory restored for 47 components
@@ -180,11 +180,11 @@ Data Agent grounds query against your ontology:
   3. Trace to ProductLines using those components
   4. Calculate revenueAtRisk for each ProductLine
   5. Return ranked list by revenueAtRisk
-  
+
 Agent Response:
-  "You have 3 critical single-source suppliers. 
-   If any are disrupted, you lose ~$180M in 
-   4-9 days. We recommend pre-qualifying 
+  "You have 3 critical single-source suppliers.
+   If any are disrupted, you lose ~$180M in
+   4-9 days. We recommend pre-qualifying
    8 alternative suppliers (list attached)."
 
 User: "Which alternatives are approved for ChipX?"

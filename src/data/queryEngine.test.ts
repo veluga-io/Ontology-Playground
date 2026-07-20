@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { processQuery } from './queryEngine';
+import { generateQuerySuggestions, processQuery } from './queryEngine';
 import type { Ontology } from './ontology';
 
 const testOntology: Ontology = {
@@ -73,5 +73,15 @@ describe('processQuery', () => {
     expect(response.interpretation).toContain('relationship-name query for is supported by');
     expect(response.result).toContain('connects **Service** to **ConfigurationItem**');
     expect(response.highlightRelationships).toEqual(['service_supported_by_configuration_item']);
+  });
+
+  it('accepts Korean questions and localizes generated guidance', () => {
+    const suggestions = generateQuerySuggestions(testOntology, 'ko');
+    const response = processQuery('Problem 엔터티를 모두 보여줘', testOntology, 'ko');
+
+    expect(suggestions[0]).toContain('Service 엔터티');
+    expect(response.interpretation).toContain('감지됨');
+    expect(response.result).toContain('**속성:**');
+    expect(response.result).toContain('Problem');
   });
 });

@@ -12,7 +12,7 @@ order: 3
 ### 1. **공급업체에서 구성요소 공급**(일대다)
 
 ```
-Supplier "ChipX Corp" 
+Supplier "ChipX Corp"
   supplies→ Component "GPU Module"
          → Component "Memory Board"
          → Component "Power Supply"
@@ -84,7 +84,7 @@ MitigationAction "Activate Alt Supplier X"
 AlternativeSupplier "ChipX Europe"
   canReplace→ Supplier "ChipX Corp"
 
-AlternativeSupplier "SemiCorp Japan"  
+AlternativeSupplier "SemiCorp Japan"
   canReplace→ Supplier "ChipX Corp"
 ```
 
@@ -118,7 +118,7 @@ DISRUPTION
 │     │  │        │  ├─ leadTimeSavedDays=2
 │     │  │        │  │
 │     │  │        │  └─ ACTIVATES
-│     │  │        │     ├─ AlternativeSupplier "ChipX Europe" 
+│     │  │        │     ├─ AlternativeSupplier "ChipX Europe"
 │     │  │        │     │  ├─ qualificationStatus=Approved
 │     │  │        │     │  ├─ capacityAvailable=50,000 units/month
 │     │  │        │     │  ├─ pricePremiumPercent=12%

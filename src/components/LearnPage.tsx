@@ -8,6 +8,7 @@ import type { LearnManifest, LearnCourse, LearnArticle } from '../types/learn';
 import type { Catalogue } from '../types/catalogue';
 import type { Core as CytoscapeCore, StylesheetCSS, LayoutOptions } from 'cytoscape';
 import { useI18n } from '../i18n/useI18n';
+import { LocalePicker } from './LocalePicker';
 
 interface LearnPageProps {
   route: Route & { page: 'learn' };
@@ -112,6 +113,7 @@ export function LearnPage({ route }: LearnPageProps) {
           <BookOpen size={20} />
           <span>{t('header.school')}</span>
         </button>
+        <LocalePicker />
         <button className="icon-btn" onClick={toggleDarkMode} title={t('learn.toggleTheme')}>
           {darkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>

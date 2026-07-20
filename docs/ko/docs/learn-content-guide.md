@@ -265,4 +265,3 @@ npm test
 - [ ] `npx tsx scripts/compile-learn.ts` 오류 없이 성공합니다
 - [ ] `npm test` 통과합니다 (컴파일 통합 테스트는 퀴즈를 검증합니다. JSON)
 - [ ] 콘텐츠는 기사 보기 모드와 프레젠테이션 모드에서 모두 잘 읽힙니다.
-

@@ -7,6 +7,7 @@ import { EntityForm, RelationshipForm, DesignerPreview, DesignerToolbar, Designe
 import type { Catalogue } from '../types/catalogue';
 import type { Route } from '../lib/router';
 import { useI18n } from '../i18n/useI18n';
+import { LocalePicker } from './LocalePicker';
 
 interface OntologyDesignerProps {
   route: Route & { page: 'designer' };
@@ -77,6 +78,7 @@ export function OntologyDesigner({ route }: OntologyDesignerProps) {
             placeholder={t('designer.description')}
           />
         </div>
+        <LocalePicker />
         <DesignerToolbar />
       </div>
 

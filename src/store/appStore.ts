@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Quest } from '../data/quests';
-import { quests as defaultQuests } from '../data/quests';
+import { getDefaultQuests } from '../data/quests';
 import type { Ontology, DataBinding } from '../data/ontology';
 import { cosmicCoffeeOntology, sampleBindings } from '../data/ontology';
 import { generateQuestsForOntology } from '../data/questGenerator';
@@ -68,6 +68,14 @@ function getInitialLocale(): Locale {
 
 const initialTheme = getInitialTheme();
 const initialLocale = getInitialLocale();
+
+function questsForOntology(ontology: Ontology, locale: Locale): Quest[] {
+  return ontology.name === cosmicCoffeeOntology.name
+    ? getDefaultQuests(locale)
+    : generateQuestsForOntology(ontology, locale);
+}
+
+const initialQuests = questsForOntology(cosmicCoffeeOntology, initialLocale);
 
 interface AppState {
   // Ontology State
@@ -139,8 +147,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   darkMode: isDarkTheme(initialTheme),
   locale: initialLocale,
   
-  // Initial Quest State - use default quests for Fourth Coffee
-  availableQuests: defaultQuests,
+  // Initial Quest State
+  availableQuests: initialQuests,
   activeQuest: null,
   currentStepIndex: 0,
   completedQuests: [],
@@ -154,7 +162,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Ontology Actions
   loadOntology: (ontology, bindings = []) => {
     // Generate new quests based on the loaded ontology
-    const newQuests = generateQuestsForOntology(ontology);
+    const newQuests = questsForOntology(ontology, get().locale);
     set({
       currentOntology: ontology,
       dataBindings: bindings,
@@ -177,7 +185,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     selectedRelationshipId: null,
     highlightedEntities: [],
     highlightedRelationships: [],
-    availableQuests: defaultQuests,
+    availableQuests: getDefaultQuests(get().locale),
     activeQuest: null,
     currentStepIndex: 0,
     completedQuests: []
@@ -222,7 +230,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch {
       // Ignore persistence errors; still update in-memory state
     }
-    set({ locale });
+    const { currentOntology, activeQuest } = get();
+    const availableQuests = questsForOntology(currentOntology, locale);
+    const localizedActiveQuest = activeQuest
+      ? availableQuests.find((quest) => quest.id === activeQuest.id) ?? null
+      : null;
+    set({ locale, availableQuests, activeQuest: localizedActiveQuest });
   },
   
   // Quest Actions

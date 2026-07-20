@@ -546,7 +546,7 @@ export function OntologyGraph() {
       {focusNodeId && (
         <div className="graph-focus-badge">
           <Crosshair size={13} />
-          <span>Focus mode</span>
+          <span>{t('graph.focusMode')}</span>
           <button
             className="graph-focus-exit"
             onClick={() => {
@@ -555,7 +555,7 @@ export function OntologyGraph() {
               if (cy) cy.elements().removeClass('dimmed');
             }}
           >
-            Click background or ✕ to exit
+            {t('graph.exitFocus')}
           </button>
         </div>
       )}

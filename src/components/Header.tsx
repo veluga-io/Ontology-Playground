@@ -5,7 +5,8 @@ import { routeToHash } from '../lib/router';
 import { encodeSharePayload } from '../lib/shareCodec';
 import { serializeToRDF } from '../lib/rdf/serializer';
 import { useI18n } from '../i18n/useI18n';
-import { Palette, Check, Database, Trophy, HelpCircle, FileJson, LayoutGrid, Sparkles, FileText, Share2, PenTool, BookOpen, Menu, X, Download, Info, Languages } from 'lucide-react';
+import { LocalePicker } from './LocalePicker';
+import { Palette, Check, Database, Trophy, HelpCircle, FileJson, LayoutGrid, Sparkles, FileText, Share2, PenTool, BookOpen, Menu, X, Download, Info } from 'lucide-react';
 
 interface HeaderProps {
   onAboutClick: () => void;
@@ -20,7 +21,7 @@ interface HeaderProps {
 }
 
 export function Header({ onAboutClick, onHelpClick, onDataSourcesClick, onImportExportClick, onGalleryClick, onDesignerClick, onLearnClick, onNLBuilderClick, onSummaryClick }: HeaderProps) {
-  const { theme, setTheme, totalPoints, earnedBadges, currentOntology, dataBindings, locale, setLocale } = useAppStore();
+  const { theme, setTheme, totalPoints, earnedBadges, currentOntology, dataBindings } = useAppStore();
   const { t } = useI18n();
   const route = useRoute();
   const [shareStatus, setShareStatus] = useState<'idle' | 'copying' | 'copied' | 'downloaded'>('idle');
@@ -205,17 +206,7 @@ export function Header({ onAboutClick, onHelpClick, onDataSourcesClick, onImport
             </div>
           )}
         </div>
-        <label className="locale-picker">
-          <Languages size={16} aria-hidden="true" />
-          <select
-            aria-label={t('header.language')}
-            value={locale}
-            onChange={(event) => setLocale(event.target.value as 'ko' | 'en')}
-          >
-            <option value="ko">{t('common.korean')}</option>
-            <option value="en">{t('common.english')}</option>
-          </select>
-        </label>
+        <LocalePicker />
       </div>
 
       {/* Mobile hamburger menu */}
@@ -266,18 +257,7 @@ export function Header({ onAboutClick, onHelpClick, onDataSourcesClick, onImport
             <button className="mobile-menu-item" onClick={menuAction(onDataSourcesClick)}>
               <Database size={18} /> {t('header.dataSources')}
             </button>
-            <label className="mobile-menu-locale">
-              <Languages size={18} aria-hidden="true" />
-              <span>{t('header.language')}</span>
-              <select
-                aria-label={`${t('header.language')} (${t('header.menu')})`}
-                value={locale}
-                onChange={(event) => setLocale(event.target.value as 'ko' | 'en')}
-              >
-                <option value="ko">{t('common.korean')}</option>
-                <option value="en">{t('common.english')}</option>
-              </select>
-            </label>
+            <LocalePicker mobile />
             <div className="mobile-menu-themes">
               {THEME_OPTIONS.map((opt) => (
                 <button

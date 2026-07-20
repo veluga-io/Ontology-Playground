@@ -35,4 +35,15 @@ describe('Header localization', () => {
     expect(screen.getByText('Fourth Coffee')).toBeInTheDocument();
     expect(window.localStorage.getItem('locale')).toBe('en');
   });
+
+  it('provides the persisted language selector in the mobile menu', async () => {
+    const user = userEvent.setup();
+    render(<Header {...props} />);
+
+    await user.click(screen.getByRole('button', { name: '메뉴' }));
+    await user.selectOptions(screen.getByRole('combobox', { name: '언어 (메뉴)' }), 'en');
+
+    expect(window.localStorage.getItem('locale')).toBe('en');
+    expect(screen.getByRole('combobox', { name: 'Language (Menu)' })).toHaveValue('en');
+  });
 });
