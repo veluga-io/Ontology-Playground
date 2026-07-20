@@ -22,6 +22,25 @@ function matchesDemoQuery(normalizedQuery: string, demoQuery: string, matches: s
   return normalizedQuery === demoQuery || matches.some(match => normalizedQuery.includes(match));
 }
 
+function normalizeKoreanDemoQuery(query: string): string {
+  if (query.includes('gold') && (query.includes('고객') || query.includes('customer'))) {
+    return 'show me all gold tier customers';
+  }
+  if (query.includes('ethiopia') && (query.includes('제품') || query.includes('product'))) {
+    return 'which products come from ethiopia';
+  }
+  if (query.includes('arif ramadhan') && (query.includes('주문') || query.includes('order'))) {
+    return 'what orders did arif ramadhan place';
+  }
+  return query;
+}
+
+const koreanDemoResults: Record<string, string> = {
+  'show me all gold tier customers': 'Gold 등급 고객 1명을 찾았습니다:\n• Arif Ramadhan (CUST-001) - 2024년부터 Gold 등급',
+  'which products come from ethiopia': 'Ethiopia산 제품 1개를 찾았습니다:\n• Ethiopian Single Origin (☕ Brewed) - $4.50\n  공급업체: Ethiopia Highlands Farm',
+  'what orders did arif ramadhan place': 'Arif Ramadhan의 주문:\n• ORD-2025-001 - $12.50 (완료)\n  항목: Ethiopian Single Origin x2, Colombian Latte x1\n  매장: Downtown Seattle',
+};
+
 // Generate dynamic query suggestions based on the current ontology
 export function generateQuerySuggestions(ontology: Ontology, locale: Locale = 'en'): string[] {
   const suggestions: string[] = [];
@@ -77,16 +96,17 @@ export function processQuery(query: string, ontology: Ontology, locale: Locale =
   const entities = ontology.entityTypes;
   const relationships = ontology.relationships;
   const isKorean = locale === 'ko';
+  const demoQuery = isKorean ? normalizeKoreanDemoQuery(normalizedNoPunctuation) : normalizedNoPunctuation;
 
   if (ontology.name === 'Fourth Coffee') {
     const demoResponse = nlQueryResponses.find(response =>
-      matchesDemoQuery(normalizedNoPunctuation, response.query, response.matches)
+      matchesDemoQuery(demoQuery, response.query, response.matches)
     );
 
     if (demoResponse) {
       return {
         query,
-        result: demoResponse.result,
+        result: isKorean ? koreanDemoResults[demoResponse.query] ?? demoResponse.result : demoResponse.result,
         highlightEntities: demoResponse.highlightEntities,
         highlightRelationships: demoResponse.highlightRelationships,
         interpretation: isKorean ? '감지됨: Fourth Coffee 샘플 쿼리' : 'Detected: Fourth Coffee sample query'

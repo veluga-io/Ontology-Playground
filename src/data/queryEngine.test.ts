@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateQuerySuggestions, processQuery } from './queryEngine';
+import { getDefaultQuests } from './quests';
+import { cosmicCoffeeOntology } from './ontology';
 import type { Ontology } from './ontology';
 
 const testOntology: Ontology = {
@@ -83,5 +85,19 @@ describe('processQuery', () => {
     expect(response.interpretation).toContain('감지됨');
     expect(response.result).toContain('**속성:**');
     expect(response.result).toContain('Problem');
+  });
+
+  it('returns meaningful results for every localized default query quest prompt', () => {
+    const queryQuest = getDefaultQuests('ko').find((quest) => quest.id === 'quest-4');
+    const prompts = queryQuest?.steps.map((step) => step.instruction.match(/'(.+)'/)?.[1]) ?? [];
+
+    expect(prompts).toHaveLength(3);
+    for (const prompt of prompts) {
+      expect(prompt).toBeTruthy();
+      const response = processQuery(prompt!, cosmicCoffeeOntology, 'ko');
+      expect(response.result).not.toContain('해석하지 못했습니다');
+      expect(response.interpretation).toBe('감지됨: Fourth Coffee 샘플 쿼리');
+      expect(response.highlightEntities.length).toBeGreaterThan(0);
+    }
   });
 });
