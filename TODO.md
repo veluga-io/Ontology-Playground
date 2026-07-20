@@ -293,6 +293,13 @@ These enhance the overall experience for a community learning resource.
 - [x] Progressive ontology catalogue entries for step-by-step learning (18
   school entries + 6 IQ Lab entries)
 
+### 5.7 Korean localization
+- [x] Default the application shell and primary workflows to Korean
+- [x] Add a persisted `한국어 / English` selector to desktop and mobile navigation
+- [x] Compile and load locale-specific Ontology School manifests with English fallback
+- [x] Keep ontology catalogue data, identifiers, RDF/JSON, and query syntax unchanged
+- [x] Publish Korean project and learning documentation under `docs/ko/`
+
 ---
 
 ## 6. Ontology editor / designer
