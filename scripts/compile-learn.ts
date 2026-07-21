@@ -18,7 +18,8 @@
  * Usage: npx tsx scripts/compile-learn.ts
  */
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { marked, type Tokens } from 'marked';
 import type { LearnArticle, LearnCourse, LearnManifest } from '../src/types/learn.js';
 import { sanitizeLearnHtml } from '../src/lib/learn/sanitizeHtml.js';
@@ -87,8 +88,21 @@ const quizRenderer = {
 marked.use({ renderer: quizRenderer });
 
 const ROOT = join(import.meta.dirname, '..');
-const CONTENT_DIR = join(ROOT, 'content', 'learn');
-const OUTPUT_PATH = join(ROOT, 'public', 'learn.json');
+
+export const LEARN_BUILDS = [
+  {
+    locale: 'en',
+    contentDir: join(ROOT, 'content', 'learn'),
+    outputPath: join(ROOT, 'public', 'learn.en.json'),
+  },
+  {
+    locale: 'ko',
+    contentDir: join(ROOT, 'docs', 'ko', 'content', 'learn'),
+    outputPath: join(ROOT, 'public', 'learn.ko.json'),
+  },
+] as const;
+
+const COMPATIBILITY_OUTPUT_PATH = join(ROOT, 'public', 'learn.json');
 
 // ------------------------------------------------------------------
 // Frontmatter parser (simple YAML-like key: value)
@@ -147,20 +161,20 @@ function parseFrontmatter<T extends Record<string, string>>(
 const COURSE_REQUIRED = ['title', 'slug', 'description', 'type', 'icon'] as const;
 const ARTICLE_REQUIRED = ['title', 'slug', 'description', 'order'] as const;
 
-function compile(): LearnManifest {
+export function compileLearningContent(contentDir: string): LearnManifest {
   const courses: LearnCourse[] = [];
   let errors = 0;
 
   // Discover course directories
-  const dirs = readdirSync(CONTENT_DIR)
+  const dirs = readdirSync(contentDir)
     .filter((d) => {
-      const full = join(CONTENT_DIR, d);
+      const full = join(contentDir, d);
       return statSync(full).isDirectory();
     })
     .sort();
 
   for (const dirName of dirs) {
-    const courseDir = join(CONTENT_DIR, dirName);
+    const courseDir = join(contentDir, dirName);
     const metaPath = join(courseDir, '_meta.md');
 
     if (!existsSync(metaPath)) {
@@ -257,12 +271,35 @@ function compile(): LearnManifest {
 // Run
 // ------------------------------------------------------------------
 
-try {
-  const manifest = compile();
-  const totalArticles = manifest.courses.reduce((sum, c) => sum + c.articles.length, 0);
-  writeFileSync(OUTPUT_PATH, JSON.stringify(manifest, null, 2) + '\n', 'utf-8');
-  console.log(`\n✔ Wrote ${manifest.courses.length} courses (${totalArticles} articles) to ${OUTPUT_PATH}`);
-} catch (e) {
-  console.error(`\n${(e as Error).message}`);
-  process.exit(1);
+function writeManifest(outputPath: string, manifest: LearnManifest): void {
+  const totalArticles = manifest.courses.reduce((sum, course) => sum + course.articles.length, 0);
+  writeFileSync(outputPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf-8');
+  console.log(`\n✔ Wrote ${manifest.courses.length} courses (${totalArticles} articles) to ${outputPath}`);
+}
+
+function run(): void {
+  const manifests = new Map<string, LearnManifest>();
+  for (const build of LEARN_BUILDS) {
+    console.log(`\nCompiling ${build.locale} learning content…`);
+    const manifest = compileLearningContent(build.contentDir);
+    manifests.set(build.locale, manifest);
+    writeManifest(build.outputPath, manifest);
+  }
+
+  const englishManifest = manifests.get('en');
+  if (!englishManifest) throw new Error('English learning manifest was not generated');
+  writeManifest(COMPATIBILITY_OUTPUT_PATH, englishManifest);
+}
+
+const isMainModule = process.argv[1]
+  ? resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+  : false;
+
+if (isMainModule) {
+  try {
+    run();
+  } catch (e) {
+    console.error(`\n${(e as Error).message}`);
+    process.exit(1);
+  }
 }

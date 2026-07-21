@@ -59,4 +59,14 @@ describe('generateQuestsForOntology', () => {
     expect(traversalStep?.instruction).toBe('Try a traversal query: "How does Service connect to ConfigurationItem?"');
     expect(traversalStep?.instruction).not.toContain('Show me all is supported by connections');
   });
+
+  it('localizes generated guidance while preserving ontology terms', () => {
+    const quests = generateQuestsForOntology(ontology, 'ko');
+    const entityQuest = quests.find((quest) => quest.id === 'quest-1');
+
+    expect(entityQuest?.title).toBe('엔터티 만나기');
+    expect(entityQuest?.description).toContain('Incident Management');
+    expect(entityQuest?.steps[0].instruction).toContain('Service 엔터티');
+    expect(entityQuest?.steps[0].instruction).toContain('살펴보세요');
+  });
 });

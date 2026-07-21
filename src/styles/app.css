@@ -382,6 +382,25 @@ body {
   gap: 12px;
 }
 
+.locale-picker,
+.mobile-menu-locale {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.locale-picker select,
+.mobile-menu-locale select {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 6px;
+}
+
 /* Icon Buttons */
 .icon-btn {
   display: flex;
@@ -4149,6 +4168,15 @@ body {
 
 .mobile-menu-item:hover {
   background: var(--bg-tertiary);
+}
+
+.mobile-menu-locale {
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.mobile-menu-locale select {
+  margin-left: auto;
 }
 
 /* Mobile panel bottom tabs — hidden on desktop */

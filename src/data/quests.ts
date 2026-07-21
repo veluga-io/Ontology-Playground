@@ -1,4 +1,5 @@
 // Quest system for Ontology Playground demo
+import type { Locale } from '../store/appStore';
 
 export interface Quest {
   id: string;
@@ -203,6 +204,81 @@ export const quests: Quest[] = [
     }
   }
 ];
+
+const koreanQuestCopy: Record<string, {
+  title: string;
+  description: string;
+  badge: string;
+  steps: Record<string, { instruction: string; hint?: string }>;
+}> = {
+  'quest-1': {
+    title: '엔터티 만나기',
+    description: '엔터티 형식을 탐색하며 Fourth Coffee 온톨로지의 핵심 구성 요소를 알아보세요.',
+    badge: '엔터티 탐험가',
+    steps: {
+      'step-1-1': { instruction: 'Customer 엔터티를 클릭해 고객 정보를 살펴보세요', hint: '그래프에서 👤 아이콘을 찾으세요' },
+      'step-1-2': { instruction: '이제 Product 엔터티를 살펴보세요', hint: '☕ 커피잔 아이콘을 찾으세요' },
+      'step-1-3': { instruction: '마지막으로 Store 엔터티를 확인하세요', hint: '🏪 매장 아이콘을 찾으세요' },
+    },
+  },
+  'quest-2': {
+    title: '원두의 여정',
+    description: '관계를 따라 공급업체에서 고객까지 커피 원두의 여정을 추적하세요.',
+    badge: '원두 탐정',
+    steps: {
+      'step-2-1': { instruction: '원두가 출발하는 Supplier 엔터티에서 시작하세요', hint: '🚚 트럭 아이콘을 찾으세요' },
+      'step-2-2': { instruction: "'sourcedFrom' 관계를 따라 Product로 이동하세요", hint: 'Supplier와 Product를 연결하는 선을 클릭하세요' },
+      'step-2-3': { instruction: "'contains' 관계를 살펴보고 제품이 주문에 포함되는 방식을 확인하세요", hint: 'Order와 Product 사이의 연결을 살펴보세요' },
+      'step-2-4': { instruction: "마지막으로 주문자를 나타내는 'places' 관계를 확인하세요", hint: 'Customer에서 Order로 이어지는 관계를 찾으세요' },
+    },
+  },
+  'quest-3': {
+    title: '공급망 탐색가',
+    description: '배송이 공급업체와 매장을 연결하는 방식을 이해하세요.',
+    badge: '공급망 마스터',
+    steps: {
+      'step-3-1': { instruction: 'Shipment 엔터티를 클릭하세요', hint: '📦 상자 아이콘을 찾으세요' },
+      'step-3-2': { instruction: "Supplier로 이어지는 'sentBy' 관계를 살펴보세요", hint: '배송이 어디에서 시작되는지 확인하세요' },
+      'step-3-3': { instruction: "Store로 이어지는 'deliveredTo' 관계를 따라가세요", hint: '배송이 어디로 향하는지 확인하세요' },
+    },
+  },
+  'quest-4': {
+    title: '쿼리 탐험가',
+    description: '자연어 쿼리로 질문하는 방법을 익혀보세요.',
+    badge: '쿼리 마법사',
+    steps: {
+      'step-4-1': { instruction: "질문해 보세요: 'Gold 등급 고객을 모두 보여줘'", hint: '쿼리 플레이그라운드에 입력하세요' },
+      'step-4-2': { instruction: "이제 질문해 보세요: 'Ethiopia에서 온 제품은 무엇인가요?'", hint: '자연어로 원산지를 필터링하세요' },
+      'step-4-3': { instruction: "탐색 쿼리를 시도하세요: 'Arif Ramadhan이 주문한 항목은 무엇인가요?'", hint: 'Customer → Order 관계를 따라갑니다' },
+    },
+  },
+  'quest-5': {
+    title: '데이터 바인딩 발견',
+    description: '온톨로지 개념이 실제 데이터 플랫폼 원본에 연결되는 방식을 알아보세요.',
+    badge: '바인딩 전문가',
+    steps: {
+      'step-5-1': { instruction: 'Customer 엔터티를 선택하고 데이터 바인딩을 확인하세요', hint: '검사기에서 데이터 바인딩 섹션을 찾으세요' },
+      'step-5-2': { instruction: 'Customer 속성이 원본 열에 매핑되는 방식을 살펴보세요', hint: "'name'이 원본의 'full_name'에 매핑되는 방식을 확인하세요" },
+      'step-5-3': { instruction: 'Product 엔터티의 바인딩에서 원본과 테이블을 확인하세요', hint: 'Product 아래의 데이터 바인딩 카드를 살펴보세요' },
+    },
+  },
+};
+
+export function getDefaultQuests(locale: Locale): Quest[] {
+  if (locale === 'en') return quests;
+
+  return quests.map((quest) => {
+    const copy = koreanQuestCopy[quest.id];
+    if (!copy) return quest;
+    return {
+      ...quest,
+      title: copy.title,
+      description: copy.description,
+      steps: quest.steps.map((step) => ({ ...step, ...copy.steps[step.id] })),
+      reward: { ...quest.reward, badge: copy.badge },
+    };
+  });
+}
 
 // Pre-defined NL query responses for demo
 export interface QueryResponse {

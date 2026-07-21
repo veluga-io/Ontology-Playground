@@ -33,6 +33,7 @@ import { navigate } from './lib/router';
 import { decodeSharePayload } from './lib/shareCodec';
 import type { Catalogue } from './types/catalogue';
 import { Search, MessageSquare, Info, Compass, LayoutGrid, PenTool, BookOpen, FileJson, HelpCircle, Database, Palette, FileText } from 'lucide-react';
+import { useI18n } from './i18n/useI18n';
 import './styles/app.css';
 
 const AI_BUILDER_ENABLED = import.meta.env.VITE_ENABLE_AI_BUILDER === 'true';
@@ -43,6 +44,7 @@ const NLBuilderModal = AI_BUILDER_ENABLED
 
 function App() {
   const route = useRoute();
+  const { locale, t } = useI18n();
 
   const [showWelcome, setShowWelcome] = useState(false);
   const [showTour, setShowTour] = useState(() => !isTourDismissed());
@@ -58,19 +60,23 @@ function App() {
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const { theme, setTheme, earnedBadges, loadOntology } = useAppStore();
 
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
   // Show toast when a new badge is earned
   useEffect(() => {
     if (earnedBadges.length > 0) {
       const latestBadge = earnedBadges[earnedBadges.length - 1];
       setToast({
-        message: `Quest Complete! Earned: ${latestBadge.badge}`,
+        message: t('shell.questComplete', { badge: latestBadge.badge }),
         icon: latestBadge.icon
       });
       
       const timer = setTimeout(() => setToast(null), 4000);
       return () => clearTimeout(timer);
     }
-  }, [earnedBadges]);
+  }, [earnedBadges, t]);
 
   // Deep-link: /#/catalogue/<id> — load a specific ontology from the catalogue
   useEffect(() => {
@@ -168,16 +174,16 @@ function App() {
 
   // ── Command palette items ──────────────────────────────
   const commands = useMemo<CommandItem[]>(() => [
-    { id: 'catalogue', label: 'Open Catalogue', icon: <LayoutGrid size={18} />, action: openGallery },
-    { id: 'designer', label: 'Open Designer', icon: <PenTool size={18} />, action: openDesigner },
-    { id: 'learn', label: 'Open Ontology School', icon: <BookOpen size={18} />, action: openLearn },
-    { id: 'import-export', label: 'Import / Export', icon: <FileJson size={18} />, action: () => setShowImportExport(true) },
-    { id: 'summary', label: 'View Summary', icon: <FileText size={18} />, action: () => setShowSummary(true) },
-    { id: 'about', label: 'About & Trademark Notice', icon: <Info size={18} />, action: () => setShowAbout(true) },
-    { id: 'help', label: 'Help', icon: <HelpCircle size={18} />, shortcut: '?', action: () => setShowHelp(true) },
-    { id: 'data-sources', label: 'Data Sources', icon: <Database size={18} />, action: () => setShowDataSources(true) },
-    { id: 'theme', label: 'Switch Theme', icon: <Palette size={18} />, action: cycleTheme },
-  ], [openGallery, openDesigner, openLearn, cycleTheme]);
+    { id: 'catalogue', label: t('command.openCatalogue'), icon: <LayoutGrid size={18} />, action: openGallery },
+    { id: 'designer', label: t('command.openDesigner'), icon: <PenTool size={18} />, action: openDesigner },
+    { id: 'learn', label: t('command.openSchool'), icon: <BookOpen size={18} />, action: openLearn },
+    { id: 'import-export', label: t('header.importExport'), icon: <FileJson size={18} />, action: () => setShowImportExport(true) },
+    { id: 'summary', label: t('command.viewSummary'), icon: <FileText size={18} />, action: () => setShowSummary(true) },
+    { id: 'about', label: t('command.aboutTrademark'), icon: <Info size={18} />, action: () => setShowAbout(true) },
+    { id: 'help', label: t('header.help'), icon: <HelpCircle size={18} />, shortcut: '?', action: () => setShowHelp(true) },
+    { id: 'data-sources', label: t('header.dataSources'), icon: <Database size={18} />, action: () => setShowDataSources(true) },
+    { id: 'theme', label: t('command.switchTheme'), icon: <Palette size={18} />, action: cycleTheme },
+  ], [openGallery, openDesigner, openLearn, cycleTheme, t]);
 
   // Full-page views
   if (route.page === 'designer') {
@@ -213,23 +219,23 @@ function App() {
       {/* Mobile bottom tabs — visible only on small screens via CSS */}
       <div className="mobile-panel-tabs">
         <button className={`mobile-tab ${mobilePanel === 'graph' ? 'active' : ''}`} onClick={() => setMobilePanel('graph')}>
-          <Search size={18} /> Graph
+          <Search size={18} /> {t('shell.graph')}
         </button>
         <button className={`mobile-tab ${mobilePanel === 'quests' ? 'active' : ''}`} onClick={() => setMobilePanel('quests')}>
-          <Compass size={18} /> Quests
+          <Compass size={18} /> {t('shell.quests')}
         </button>
         <button className={`mobile-tab ${mobilePanel === 'inspector' ? 'active' : ''}`} onClick={() => setMobilePanel('inspector')}>
-          <Info size={18} /> Inspector
+          <Info size={18} /> {t('shell.inspector')}
         </button>
         <button className={`mobile-tab ${mobilePanel === 'query' ? 'active' : ''}`} onClick={() => setMobilePanel('query')}>
-          <MessageSquare size={18} /> Query
+          <MessageSquare size={18} /> {t('shell.query')}
         </button>
       </div>
 
       {/* Mobile panel drawer — visible only on small screens when a panel is selected */}
       {mobilePanel !== 'graph' && (
         <div className="mobile-panel-drawer">
-          <button className="mobile-panel-close" onClick={() => setMobilePanel('graph')}>✕ Close</button>
+          <button className="mobile-panel-close" onClick={() => setMobilePanel('graph')}>✕ {t('common.close')}</button>
           {mobilePanel === 'quests' && <QuestPanel />}
           {mobilePanel === 'inspector' && (
             <>

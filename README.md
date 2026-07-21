@@ -2,6 +2,8 @@
 
 > Note: This project was developed with AI-assisted coding.
 
+**[한국어 문서](docs/ko/README.md)**
+
 **[Try it live &#x2192; microsoft.github.io/Ontology-Playground](https://microsoft.github.io/Ontology-Playground/)**
 
 [![Ontology Playground screenshot](public/og-image.png)](https://microsoft.github.io/Ontology-Playground/)
@@ -110,6 +112,14 @@ First-time visitors get a 5-step guided tour with a spotlight overlay that
 highlights the Header, Graph, Quests, Inspector, and Designer in sequence.
 Dismissable with a "don't show again" option persisted to `localStorage`.
 
+### Korean-Default Interface
+
+The application interface and Ontology School open in Korean by default. Use
+the `한국어 / English` selector in the header to switch languages; the selection
+is saved in `localStorage`. Ontology names, entity and relationship names,
+sample values, query syntax, RDF, and JSON identifiers remain in their original
+English form.
+
 ### Deep Linking & URL Routing
 
 Client-side hash routing with shareable URLs for every page:
@@ -140,7 +150,7 @@ Client-side hash routing with shareable URLs for every page:
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 22.22.1 recommended (Vite 8 requires a current Node.js release)
 - npm 9+
 
 ### Installation
@@ -157,6 +167,20 @@ npm run dev
 ```
 
 Visit http://localhost:5173
+
+The development server opens with the Korean UI. Choose `English` from the
+header language selector when needed. If you edit learning Markdown, rebuild
+the localized manifests before starting the server:
+
+```bash
+npm run learn:build
+npm run dev
+```
+
+English learning content is compiled from `content/learn` to
+`public/learn.en.json`; Korean content is compiled from
+`docs/ko/content/learn` to `public/learn.ko.json`. `public/learn.json` remains
+the English compatibility manifest.
 
 ### Production Build
 

@@ -72,6 +72,7 @@ describe('ImportExportModal integration', () => {
     onClose.mockClear();
     // Reset the store to default before each test
     useAppStore.getState().resetToDefault();
+    useAppStore.getState().setLocale('en');
   });
 
   it('imports a valid RDF file and updates the store', async () => {

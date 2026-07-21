@@ -17,14 +17,14 @@ concurrency:
 
 jobs:
   build:
-    if: github.repository == 'microsoft/Ontology-Playground'
+    if: github.repository == 'veluga-io/Ontology-Playground'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 20
+          node-version: 22.22.1
           cache: npm
 
       - run: npm ci --ignore-scripts
@@ -50,7 +50,7 @@ jobs:
           path: build
 
   deploy:
-    if: github.repository == 'microsoft/Ontology-Playground'
+    if: github.repository == 'veluga-io/Ontology-Playground'
     needs: build
     runs-on: ubuntu-latest
     environment:

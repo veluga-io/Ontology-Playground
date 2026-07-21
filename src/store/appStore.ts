@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import type { Quest } from '../data/quests';
-import { quests as defaultQuests } from '../data/quests';
+import { getDefaultQuests } from '../data/quests';
 import type { Ontology, DataBinding } from '../data/ontology';
 import { cosmicCoffeeOntology, sampleBindings } from '../data/ontology';
 import { generateQuestsForOntology } from '../data/questGenerator';
 
 export type ThemeId = 'dark' | 'light' | 'aurora' | 'crimson';
+export type Locale = 'ko' | 'en';
 
 export const THEME_OPTIONS: { id: ThemeId; label: string; swatch: string }[] = [
   { id: 'dark', label: 'Dark', swatch: '#1B1B1B' },
@@ -54,7 +55,27 @@ function getInitialTheme(): ThemeId {
   }
 }
 
+function getInitialLocale(): Locale {
+  if (typeof window === 'undefined' || !('localStorage' in window)) {
+    return 'ko';
+  }
+  try {
+    return window.localStorage.getItem('locale') === 'en' ? 'en' : 'ko';
+  } catch {
+    return 'ko';
+  }
+}
+
 const initialTheme = getInitialTheme();
+const initialLocale = getInitialLocale();
+
+function questsForOntology(ontology: Ontology, locale: Locale): Quest[] {
+  return ontology.name === cosmicCoffeeOntology.name
+    ? getDefaultQuests(locale)
+    : generateQuestsForOntology(ontology, locale);
+}
+
+const initialQuests = questsForOntology(cosmicCoffeeOntology, initialLocale);
 
 interface AppState {
   // Ontology State
@@ -69,6 +90,7 @@ interface AppState {
   showDataBindings: boolean;
   theme: ThemeId;
   darkMode: boolean;
+  locale: Locale;
   
   // Quest State
   availableQuests: Quest[];
@@ -96,6 +118,7 @@ interface AppState {
   toggleDataBindings: () => void;
   setTheme: (theme: ThemeId) => void;
   toggleDarkMode: () => void;
+  setLocale: (locale: Locale) => void;
   
   // Quest Actions
   startQuest: (questId: string) => void;
@@ -122,9 +145,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   showDataBindings: false,
   theme: initialTheme,
   darkMode: isDarkTheme(initialTheme),
+  locale: initialLocale,
   
-  // Initial Quest State - use default quests for Fourth Coffee
-  availableQuests: defaultQuests,
+  // Initial Quest State
+  availableQuests: initialQuests,
   activeQuest: null,
   currentStepIndex: 0,
   completedQuests: [],
@@ -138,7 +162,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Ontology Actions
   loadOntology: (ontology, bindings = []) => {
     // Generate new quests based on the loaded ontology
-    const newQuests = generateQuestsForOntology(ontology);
+    const newQuests = questsForOntology(ontology, get().locale);
     set({
       currentOntology: ontology,
       dataBindings: bindings,
@@ -161,7 +185,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     selectedRelationshipId: null,
     highlightedEntities: [],
     highlightedRelationships: [],
-    availableQuests: defaultQuests,
+    availableQuests: getDefaultQuests(get().locale),
     activeQuest: null,
     currentStepIndex: 0,
     completedQuests: []
@@ -199,6 +223,19 @@ export const useAppStore = create<AppState>((set, get) => ({
   toggleDarkMode: () => {
     const next: ThemeId = isDarkTheme(get().theme) ? 'light' : 'dark';
     get().setTheme(next);
+  },
+  setLocale: (locale) => {
+    try {
+      localStorage.setItem('locale', locale);
+    } catch {
+      // Ignore persistence errors; still update in-memory state
+    }
+    const { currentOntology, activeQuest } = get();
+    const availableQuests = questsForOntology(currentOntology, locale);
+    const localizedActiveQuest = activeQuest
+      ? availableQuests.find((quest) => quest.id === activeQuest.id) ?? null
+      : null;
+    set({ locale, availableQuests, activeQuest: localizedActiveQuest });
   },
   
   // Quest Actions

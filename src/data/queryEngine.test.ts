@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { processQuery } from './queryEngine';
+import { generateQuerySuggestions, processQuery } from './queryEngine';
+import { getDefaultQuests } from './quests';
+import { cosmicCoffeeOntology } from './ontology';
 import type { Ontology } from './ontology';
 
 const testOntology: Ontology = {
@@ -73,5 +75,29 @@ describe('processQuery', () => {
     expect(response.interpretation).toContain('relationship-name query for is supported by');
     expect(response.result).toContain('connects **Service** to **ConfigurationItem**');
     expect(response.highlightRelationships).toEqual(['service_supported_by_configuration_item']);
+  });
+
+  it('accepts Korean questions and localizes generated guidance', () => {
+    const suggestions = generateQuerySuggestions(testOntology, 'ko');
+    const response = processQuery('Problem 엔터티를 모두 보여줘', testOntology, 'ko');
+
+    expect(suggestions[0]).toContain('Service 엔터티');
+    expect(response.interpretation).toContain('감지됨');
+    expect(response.result).toContain('**속성:**');
+    expect(response.result).toContain('Problem');
+  });
+
+  it('returns meaningful results for every localized default query quest prompt', () => {
+    const queryQuest = getDefaultQuests('ko').find((quest) => quest.id === 'quest-4');
+    const prompts = queryQuest?.steps.map((step) => step.instruction.match(/'(.+)'/)?.[1]) ?? [];
+
+    expect(prompts).toHaveLength(3);
+    for (const prompt of prompts) {
+      expect(prompt).toBeTruthy();
+      const response = processQuery(prompt!, cosmicCoffeeOntology, 'ko');
+      expect(response.result).not.toContain('해석하지 못했습니다');
+      expect(response.interpretation).toBe('감지됨: Fourth Coffee 샘플 쿼리');
+      expect(response.highlightEntities.length).toBeGreaterThan(0);
+    }
   });
 });

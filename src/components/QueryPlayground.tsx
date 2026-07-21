@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../store/appStore';
 import { processQuery, generateQuerySuggestions } from '../data/queryEngine';
 import { Search, Sparkles, X, Lightbulb } from 'lucide-react';
+import { useI18n } from '../i18n/useI18n';
 
 export function QueryPlayground() {
+  const { t, locale } = useI18n();
   const [input, setInput] = useState('');
   const [result, setResult] = useState<string | null>(null);
   const [interpretation, setInterpretation] = useState<string | null>(null);
@@ -22,8 +24,8 @@ export function QueryPlayground() {
 
   // Generate dynamic suggestions based on current ontology
   const sampleQueries = useMemo(() => 
-    generateQuerySuggestions(currentOntology),
-    [currentOntology]
+    generateQuerySuggestions(currentOntology, locale),
+    [currentOntology, locale]
   );
 
   const handleQuery = useCallback(() => {
@@ -34,7 +36,7 @@ export function QueryPlayground() {
     
     // Simulate processing delay for realistic feel
     setTimeout(() => {
-      const response = processQuery(input, currentOntology);
+      const response = processQuery(input, currentOntology, locale);
       
       setResult(response.result);
       setInterpretation(response.interpretation || null);
@@ -51,7 +53,7 @@ export function QueryPlayground() {
       
       setIsProcessing(false);
     }, 600);
-  }, [input, currentOntology, setHighlightedEntities, setHighlightedRelationships, activeQuest, currentStepIndex, advanceQuestStep]);
+  }, [input, currentOntology, locale, setHighlightedEntities, setHighlightedRelationships, activeQuest, currentStepIndex, advanceQuestStep]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -84,27 +86,27 @@ export function QueryPlayground() {
     <div className="query-section">
       <div className="section-title">
         <Sparkles size={14} />
-        Natural Language Query (NL2Ontology)
+        {t('query.title')}
       </div>
       
       <div className="query-input-container">
         <input
           type="text"
           className="query-input"
-          placeholder={`Ask about ${currentOntology.name}...`}
+          placeholder={t('query.placeholder', { name: currentOntology.name })}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
         />
         {input && (
-          <button className="icon-btn" onClick={handleClear} title="Clear" aria-label="Clear query">
+          <button className="icon-btn" onClick={handleClear} title={t('path.clear')} aria-label={t('query.clear')}>
             <X size={18} />
           </button>
         )}
         <button 
           className="btn btn-primary" 
           onClick={handleQuery}
-          aria-label="Run query"
+          aria-label={t('query.run')}
           disabled={isProcessing}
         >
           {isProcessing ? (
@@ -123,7 +125,7 @@ export function QueryPlayground() {
       {!result && !isProcessing && (
         <div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8 }}>
-            Try asking:
+            {t('query.tryAsking')}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {sampleQueries.slice(0, 3).map((query, index) => (

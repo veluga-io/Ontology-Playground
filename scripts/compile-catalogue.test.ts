@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { serializeToRDF } from '../src/lib/rdf/serializer';
 import { parseRDF } from '../src/lib/rdf/parser';
 
@@ -41,12 +41,16 @@ function findEntry(id: string): CatalogueTestEntry {
 }
 
 describe('catalogue compilation (end-to-end)', () => {
-  it('npm run catalogue:build succeeds with the real catalogue', () => {
-    const result = execSync('npx tsx scripts/compile-catalogue.ts', {
+  it('catalogue compiler succeeds with the real catalogue', () => {
+    const result = execFileSync(
+      process.execPath,
+      [join(ROOT, 'node_modules', 'tsx', 'dist', 'cli.mjs'), 'scripts/compile-catalogue.ts'],
+      {
       cwd: ROOT,
       encoding: 'utf-8',
       timeout: 30000,
-    });
+      },
+    );
     expect(result).toContain('official/cosmic-coffee');
     expect(result).toContain('official/ecommerce');
 
